@@ -1,0 +1,49 @@
+  //project 2 Meshal Nasser Al SAlem
+
+  interface FuelConsumptionStrategy {
+    public double calculate(double distance, double fuelUsed);
+}
+
+class MPGStrategy implements FuelConsumptionStrategy {
+    @Override
+    public double calculate(double distance, double fuelUsed) {
+        return distance / fuelUsed;
+    }
+}
+
+class LP100KmStrategy implements FuelConsumptionStrategy {
+    @Override
+    public double calculate(double distance, double fuelUsed) {
+        return (fuelUsed / distance) * 100;
+    }
+}
+
+class Fuel2 {
+    private FuelConsumptionStrategy calc;
+
+    public Fuel2(FuelConsumptionStrategy strategy) {
+        this.calc = strategy;
+    }
+
+    public void setReadingMethod(FuelConsumptionStrategy strategy) {
+        this.calc = strategy;
+    }
+
+    public double calculate(double distance, double fuelUsed) {
+        return calc.calculate(distance, fuelUsed);
+    }
+}
+
+public class Main {
+    public static void main(String[]args) {
+        Fuel2 carl = new Fuel2(new MPGStrategy()); 
+
+        double mpg = carl.calculate(100, 5);
+        System.out.printf("Fuel consumption (MPG): %.1f\n", mpg);
+
+        carl.setReadingMethod(new LP100KmStrategy());
+
+        double lp100km = carl.calculate(100, 5);
+        System.out.printf("Fuel consumption (L/100km): %.1f\n", lp100km);
+    }
+}
