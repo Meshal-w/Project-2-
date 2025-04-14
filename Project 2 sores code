@@ -1,0 +1,105 @@
+import java.util.ArrayList;
+import java.util.List;
+
+interface FuelConsumptionStrategy {
+    double calculate(double distance, double fuel);
+}
+
+class KmPLStrategy implements FuelConsumptionStrategy {
+    @Override
+    public double calculate(double distance, double fuel) {
+        return distance / fuel; // Km per Liter
+    }
+}
+
+class MilesPerGallonStrategy implements FuelConsumptionStrategy {
+    @Override
+    public double calculate(double distance, double fuel) {
+        double miles = distance * 0.621371; // Convert km to miles
+        double gallons = fuel * 0.264172; // Convert liters to gallons
+        return miles / gallons; // Miles per Gallon
+    }
+}
+
+class LitersPer100KmStrategy implements FuelConsumptionStrategy {
+    @Override
+    public double calculate(double distance, double fuel) {
+        return (fuel / distance) * 100; // Liters per 100 Km
+    }
+}
+
+class Fuel2 {
+    private FuelConsumptionStrategy strategy;
+
+    public void setReadingMethod(FuelConsumptionStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public double calculate(double distance, double fuel) {
+        if (strategy == null) {
+            throw new IllegalStateException("Strategy not set");
+        }
+        return strategy.calculate(distance, fuel);
+    }
+}
+
+class FuelRecord {
+    private String carType;
+    private int startKM;
+    private int endKM;
+    private double distance;
+    private double liters;
+    private double pricePerLiter;
+    private double kmPerLiter;
+    private double litersPer100Km;
+    private double cost;
+
+    public FuelRecord(String carType, int startKM, int endKM, double liters, double pricePerLiter) {
+        this.carType = carType;
+        this.startKM = startKM;
+        this.endKM = endKM;
+        this.distance = endKM - startKM;
+        this.liters = liters;
+        this.pricePerLiter = pricePerLiter;
+        this.kmPerLiter = distance / liters;
+        this.litersPer100Km = (liters / distance) * 100;
+        this.cost = liters * pricePerLiter;
+    }
+
+    public void printRecord() {
+        System.out.printf("%-12s %-8d %-8d %-8.0f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f\n",
+                carType, startKM, endKM, distance, liters, pricePerLiter, kmPerLiter, litersPer100Km, cost);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        List<FuelRecord> records = new ArrayList<>();
+        records.add(new FuelRecord("Ford Taurus", 164000, 164580, 58, 2.33));
+        records.add(new FuelRecord("Ford Taurus", 164580, 165100, 52, 2.33));
+        records.add(new FuelRecord("Ford Taurus", 165100, 165700, 60, 2.33));
+        records.add(new FuelRecord("Ford Taurus", 165700, 166230, 53, 2.33));
+        records.add(new FuelRecord("Ford Taurus", 166230, 166790, 56, 2.33));
+
+        System.out.println("\t\t\t\t Fuel Expense Report");
+        System.out.println("-----------------------------------------------------------------------------------");
+        System.out.printf("%-12s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-8s\n",
+                "Car Type", "Start KM", "End KM", "Distance", "Liters", "Price/L", "Km/L", "L/100Km", "Cost");
+        System.out.println("-----------------------------------------------------------------------------------");
+        for (FuelRecord record : records) {
+            record.printRecord();
+        }
+
+        Fuel2 car1 = new Fuel2();
+
+        car1.setReadingMethod(new MilesPerGallonStrategy());
+        System.out.println("\nFuel consumption (mpg): " + String.format("%.1f", car1.calculate(100, 5)));
+
+        car1.setReadingMethod(new LitersPer100KmStrategy());
+        System.out.println("Fuel consumption (L/100km): " + String.format("%.1f", car1.calculate(100, 5)));
+
+        car1.setReadingMethod(new KmPLStrategy());
+        System.out.println("Fuel consumption (km/L): " + String.format("%.1f", car1.calculate(100, 5)));
+    }
+}
